@@ -2,6 +2,7 @@ package it.jaschke.alexandria.services;
 
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -36,10 +37,26 @@ public class BookService extends IntentService {
 
     private final String LOG_TAG = BookService.class.getSimpleName();
 
-    public static final String FETCH_BOOK = "it.jaschke.alexandria.services.action.FETCH_BOOK";
-    public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
+    private static final String FETCH_BOOK = "it.jaschke.alexandria.services.action.FETCH_BOOK";
+    private static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
 
-    public static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
+    private static final String EAN = "it.jaschke.alexandria.services.extra.EAN";
+
+    public static Intent createFetchBookIntent(Context context, String ean) {
+        Intent bookIntent = new Intent(context, BookService.class);
+        bookIntent.putExtra(EAN, ean);
+        bookIntent.setAction(FETCH_BOOK);
+
+        return bookIntent;
+    }
+
+    public static Intent createDeleteBookIntent(Context context, String ean) {
+        Intent bookIntent = new Intent(context, BookService.class);
+        bookIntent.putExtra(EAN, ean);
+        bookIntent.setAction(DELETE_BOOK);
+
+        return bookIntent;
+    }
 
     public BookService() {
         super("Alexandria");

@@ -55,9 +55,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         rootView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent bookIntent = new Intent(getActivity(), BookService.class);
-                bookIntent.putExtra(BookService.EAN, ean);
-                bookIntent.setAction(BookService.DELETE_BOOK);
+                Intent bookIntent = BookService.createDeleteBookIntent(getActivity(), ean);
                 getActivity().startService(bookIntent);
                 getActivity().getSupportFragmentManager().popBackStack();
             }
