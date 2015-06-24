@@ -84,6 +84,12 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        restartLoader();
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         final String selection = AlexandriaContract.BookEntry.TITLE +" LIKE ? OR " + AlexandriaContract.BookEntry.SUBTITLE + " LIKE ? ";

@@ -13,6 +13,7 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -51,6 +52,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private View btnAdd_book_save_button;
     private View btnAdd_book_delete_button;
     private LinearLayout layoutAdd_book_progress_layout;
+    private Button btnAdd_book_scan_button;
 
     public AddBook(){
     }
@@ -100,6 +102,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         btnAdd_book_save_button = rootView.findViewById(R.id.add_book_save_button);
         btnAdd_book_delete_button = rootView.findViewById(R.id.add_book_delete_button);
         layoutAdd_book_progress_layout = (LinearLayout)rootView.findViewById(R.id.add_book_progress_layout);
+        btnAdd_book_scan_button = (Button)rootView.findViewById(R.id.add_book_scan_button);
 
         layoutAdd_book_progress_layout.setVisibility(View.GONE);
 
@@ -130,7 +133,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             }
         });
 
-        rootView.findViewById(R.id.add_book_scan_button).setOnClickListener(new View.OnClickListener() {
+        btnAdd_book_scan_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -188,7 +191,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         if(result != null && result.getFormatName() != null) {
             String content = result.getContents();
             if(content != null && content.length() >= 10) {
-                fetchBook(result.getContents());
+                //this triggers the search
+                ean.setText(result.getContents());
+                //fetchBook(result.getContents());
             }
         } else {
             // This is important, otherwise the result will not be passed to the fragment
@@ -197,7 +202,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void restartLoader(){
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+        if(getLoaderManager() != null) {
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
     }
 
     @Override
@@ -224,6 +231,10 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         if (!data.moveToFirst()) {
             return;
         }
+
+        ean.setEnabled(false);
+        ean.setFocusable(false);
+        btnAdd_book_scan_button.setEnabled(false);
 
         resultContent.setVisibility(View.VISIBLE);
 
@@ -256,6 +267,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void clearFields(){
+        ean.setEnabled(true);
+        ean.setFocusable(true);
+        btnAdd_book_scan_button.setEnabled(true);
         txtAdd_book_bookTitle.setText("");
         txtAdd_book_bookSubTitle.setText("");
         txtAdd_book_authors.setText("");
