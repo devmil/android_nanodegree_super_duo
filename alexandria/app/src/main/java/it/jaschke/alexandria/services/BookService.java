@@ -21,10 +21,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.api.books.GoogleBooksAPI;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.events.BookFetchingProgressEvent;
 import retrofit.RestAdapter;
 
 
@@ -96,6 +98,8 @@ public class BookService extends IntentService {
             return;
         }
 
+        EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_STARTED, true));
+
         Cursor bookEntry = getContentResolver().query(
                 AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
                 null, // leaving "columns" null just returns all the columns.
@@ -105,12 +109,15 @@ public class BookService extends IntentService {
         );
 
         if(bookEntry.getCount()>0){
+            //the book is already stored => simply return
             bookEntry.close();
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, true));
             return;
         }
 
         bookEntry.close();
 
+        //Get the book information from Google
         RestAdapter adapter = new RestAdapter.Builder()
                 .setEndpoint(GoogleBooksAPI.GOOGLE_APIS_BASE_URL)
                 .build();
@@ -123,6 +130,7 @@ public class BookService extends IntentService {
                     || response.items == null
                     || response.items.size() <= 0) {
                 handleNoValidBookFound();
+                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
                 return;
             }
 
@@ -131,6 +139,7 @@ public class BookService extends IntentService {
             if(resultItem == null
                     || resultItem.volumeInfo == null) {
                 handleNoValidBookFound();
+                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
                 return;
             }
 
@@ -153,9 +162,12 @@ public class BookService extends IntentService {
                 writeBackCategories(ean, resultItem.volumeInfo.categories);
             }
 
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, true));
+
         } catch(Exception e) {
             //TODO: save error state so that it can be displayed in the UI
             Log.e(LOG_TAG, "Error ", e);
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
         }
 
     }

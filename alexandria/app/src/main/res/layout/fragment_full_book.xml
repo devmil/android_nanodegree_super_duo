@@ -35,6 +35,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/fullBookCover"
                     android:contentDescription="@string/book_cover"
+                    android:scaleType="centerInside"
                     android:layout_marginTop="15dp"
                     android:layout_below="@+id/fullBookTitle"
                     android:layout_alignLeft="@+id/fullBookTitle"
@@ -76,14 +77,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/categories"
+                        android:id="@+id/add_book_categories"
                         android:layout_weight="1"
                         android:gravity="left|top"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/authors"
+                        android:id="@+id/add_book_authors"
                         android:layout_weight="1"
                         android:textStyle="bold"
                         android:gravity="right|top"/>
@@ -118,7 +119,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/delete"
                 style="?android:attr/buttonBarButtonStyle"
-                android:id="@+id/delete_button"
+                android:id="@+id/add_book_delete_button"
                 android:drawableLeft="@drawable/ic_action_discard"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="5dp"/>
