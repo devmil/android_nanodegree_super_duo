@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -87,7 +89,16 @@ public class BookService extends IntentService {
             return;
         }
 
-        EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_STARTED, true));
+        EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_STARTED, BookFetchingProgressEvent.RESULT_OK));
+
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        if(nInfo == null
+                || !nInfo.isAvailable()
+                || !nInfo.isConnected()) {
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_ERROR_CONNECTION));
+            return;
+        }
 
         Cursor bookEntry = getContentResolver().query(
                 AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)),
@@ -100,7 +111,7 @@ public class BookService extends IntentService {
         if(bookEntry.getCount()>0){
             //the book is already stored => simply return
             bookEntry.close();
-            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, true));
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_OK));
             return;
         }
 
@@ -119,7 +130,7 @@ public class BookService extends IntentService {
                     || response.items == null
                     || response.items.size() <= 0) {
                 handleNoValidBookFound();
-                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
+                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_NOT_FOUND));
                 return;
             }
 
@@ -128,7 +139,7 @@ public class BookService extends IntentService {
             if(resultItem == null
                     || resultItem.volumeInfo == null) {
                 handleNoValidBookFound();
-                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
+                EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_ERROR_BAD_FORMAT));
                 return;
             }
 
@@ -151,12 +162,11 @@ public class BookService extends IntentService {
                 writeBackCategories(ean, resultItem.volumeInfo.categories);
             }
 
-            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, true));
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_OK));
 
         } catch(Exception e) {
-            //TODO: save error state so that it can be displayed in the UI
             Log.e(LOG_TAG, "Error ", e);
-            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, false));
+            EventBus.getDefault().post(new BookFetchingProgressEvent(ean, BookFetchingProgressEvent.ACTION_FINISHED, BookFetchingProgressEvent.RESULT_ERROR_BAD_FORMAT));
         }
 
     }

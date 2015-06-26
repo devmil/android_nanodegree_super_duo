@@ -9,21 +9,31 @@ public class BookFetchingProgressEvent {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({ACTION_STARTED, ACTION_FINISHED})
-    @interface Actions {}
+    public @interface Actions {}
 
     public static final int ACTION_STARTED = 1;
     public static final int ACTION_FINISHED = 2;
 
-    public BookFetchingProgressEvent(String ean, @Actions int action, boolean success) {
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({ RESULT_OK, RESULT_NOT_FOUND, RESULT_ERROR_CONNECTION, RESULT_ERROR_BAD_FORMAT })
+    public @interface Results {}
+
+    public static final int RESULT_OK = 0;
+    public static final int RESULT_NOT_FOUND = 1;
+    public static final int RESULT_ERROR_CONNECTION = -11;
+    public static final int RESULT_ERROR_BAD_FORMAT = -12;
+
+    public BookFetchingProgressEvent(String ean, @Actions int action, @Results int result) {
         this.ean = ean;
         this.action = action;
-        this.success = success;
+        this.result = result;
     }
 
     private String ean;
     @Actions
     private int action;
-    private boolean success;
+    @Results
+    private int result;
 
     public String getEan() {
         return ean;
@@ -33,7 +43,7 @@ public class BookFetchingProgressEvent {
         return action;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public @Results int getResult() {
+        return result;
     }
 }

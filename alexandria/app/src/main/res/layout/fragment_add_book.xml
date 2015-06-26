@@ -40,6 +40,16 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/add_book_txt_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_below="@+id/add_book_eancontainer"
+            android:layout_alignLeft="@+id/add_book_eancontainer"
+            android:layout_alignStart="@+id/add_book_eancontainer"
+            />
+
         <GridLayout
             android:id="@+id/add_book_result_content"
             android:layout_width="match_parent"

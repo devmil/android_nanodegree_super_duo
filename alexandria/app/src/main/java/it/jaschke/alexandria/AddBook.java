@@ -41,11 +41,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private GridLayout resultContent;
 
     private final String EAN_CONTENT="eanContent";
-    private static final String SCAN_FORMAT = "scanFormat";
-    private static final String SCAN_CONTENTS = "scanContents";
-
-    private String mScanFormat = "Format:";
-    private String mScanContents = "Contents:";
     private TextView txtAdd_book_bookTitle;
     private TextView txtAdd_book_bookSubTitle;
     private TextView txtAdd_book_authors;
@@ -55,6 +50,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private View btnAdd_book_delete_button;
     private LinearLayout layoutAdd_book_progress_layout;
     private Button btnAdd_book_scan_button;
+    private TextView txtAdd_book_txt_error;
 
     public AddBook(){
     }
@@ -78,6 +74,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 break;
             case BookFetchingProgressEvent.ACTION_FINISHED:
                 setProgressActive(false);
+                setErrorText(e.getResult());
                 break;
         }
     }
@@ -105,6 +102,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         btnAdd_book_delete_button = rootView.findViewById(R.id.add_book_delete_button);
         layoutAdd_book_progress_layout = (LinearLayout)rootView.findViewById(R.id.add_book_progress_layout);
         btnAdd_book_scan_button = (Button)rootView.findViewById(R.id.add_book_scan_button);
+        txtAdd_book_txt_error = (TextView)rootView.findViewById(R.id.add_book_txt_error);
 
         layoutAdd_book_progress_layout.setVisibility(View.GONE);
 
@@ -194,6 +192,23 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         return rootView;
     }
 
+    private void setErrorText(@BookFetchingProgressEvent.Results int result) {
+        switch(result) {
+            case BookFetchingProgressEvent.RESULT_OK:
+                txtAdd_book_txt_error.setText("");
+                break;
+            case BookFetchingProgressEvent.RESULT_ERROR_BAD_FORMAT:
+                txtAdd_book_txt_error.setText(R.string.add_book_result_bad_format);
+                break;
+            case BookFetchingProgressEvent.RESULT_ERROR_CONNECTION:
+                txtAdd_book_txt_error.setText(R.string.add_book_result_error_connection);
+                break;
+            case BookFetchingProgressEvent.RESULT_NOT_FOUND:
+                txtAdd_book_txt_error.setText(R.string.add_book_result_not_found);
+                break;
+        }
+    }
+
     private void fetchBook(String ean) {
         Intent bookIntent = BookService.createFetchBookIntent(getActivity(), ean);
         getActivity().startService(bookIntent);
@@ -281,6 +296,22 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     }
 
     private void populateFields(String bookTitle, String bookSubTitle, String authors, String imgUrl, String categories) {
+        if(bookTitle == null) {
+            bookTitle = "";
+        }
+        if(bookSubTitle == null) {
+            bookSubTitle = "";
+        }
+        if(authors == null) {
+            authors = "";
+        }
+        if(imgUrl == null) {
+            imgUrl = "";
+        }
+        if(categories == null) {
+            categories = "";
+        }
+
         ean.setEnabled(false);
 
         btnAdd_book_scan_button.setEnabled(false);

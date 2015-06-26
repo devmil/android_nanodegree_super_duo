@@ -39,6 +39,18 @@
             android:layout_toRightOf="@+id/add_book_ean"
             android:layout_toEndOf="@+id/add_book_ean"/>
 
+        <TextView
+            android:id="@+id/add_book_txt_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_below="@+id/add_book_scan_button"
+            android:layout_alignLeft="@+id/add_book_ean"
+            android:layout_alignStart="@+id/add_book_ean"
+            android:layout_alignRight="@+id/add_book_scan_button"
+            android:layout_alignEnd="@+id/add_book_scan_button"
+            />
+
         <GridLayout
             android:id="@+id/add_book_result_content"
             android:layout_width="wrap_content"
