@@ -29,7 +29,8 @@
                 android:maxLines="1"
                 android:hint="@string/input_hint"
                 android:singleLine="true"
-                android:paddingRight="20dp"/>
+                android:paddingRight="20dp"
+                android:paddingEnd="20dp"/>
 
             <Button
                 android:layout_width="wrap_content"
@@ -151,6 +152,7 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/add_book_delete_button"
                 android:drawableLeft="@drawable/ic_action_discard"
+                android:drawableStart="@drawable/ic_action_discard"
                 android:visibility="invisible"
                 />
 
@@ -162,6 +164,7 @@
                 android:layout_weight="1"
                 android:id="@+id/add_book_save_button"
                 android:drawableLeft="@drawable/ic_action_accept"
+                android:drawableStart="@drawable/ic_action_accept"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_gravity="bottom"
                 />

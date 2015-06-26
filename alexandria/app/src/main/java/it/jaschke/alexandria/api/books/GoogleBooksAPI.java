@@ -3,7 +3,6 @@ package it.jaschke.alexandria.api.books;
 import java.util.List;
 
 import retrofit.http.GET;
-import retrofit.http.Path;
 import retrofit.http.Query;
 
 public interface GoogleBooksAPI {

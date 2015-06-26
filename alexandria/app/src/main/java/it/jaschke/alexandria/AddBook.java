@@ -244,7 +244,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         if(eanStr.length()==10 && !eanStr.startsWith("978")){
             eanStr="978"+eanStr;
         }
-        long eanLong = 0;
+        long eanLong;
         try {
             eanLong = Long.parseLong(eanStr);
         } catch(NumberFormatException e) {

@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +28,8 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
     private final int LOADER_ID = 10;
 
+    private Cursor cursor;
+
     public ListOfBooks() {
     }
 
@@ -40,7 +41,11 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        Cursor cursor = getActivity().getContentResolver().query(
+        if(cursor != null) {
+            cursor.close();
+            cursor = null;
+        }
+        cursor = getActivity().getContentResolver().query(
                 AlexandriaContract.BookEntry.CONTENT_URI,
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
@@ -87,6 +92,13 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
     public void onResume() {
         super.onResume();
         restartLoader();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        cursor.close();
+        cursor = null;
     }
 
     @Override
