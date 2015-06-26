@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -106,6 +108,29 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         layoutAdd_book_progress_layout.setVisibility(View.GONE);
 
+        InputFilter eanInputFilter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                boolean isOK = true;
+                StringBuilder fixedResult = new StringBuilder(end - start);
+                for(int i=start; i<end; i++) {
+                    char currentChar = source.charAt(i);
+                    int currentLength = dstart + fixedResult.length();
+                    if(Character.isDigit(currentChar)
+                            && currentLength < 13) {
+                        fixedResult.append(currentChar);
+                    } else {
+                        isOK = false;
+                    }
+                }
+                if(isOK) {
+                    return null;
+                }
+                return fixedResult;
+            }
+        };
+        ean.setFilters(new InputFilter [] { eanInputFilter });
+
         ean.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -136,7 +161,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         btnAdd_book_scan_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                clearFields();
                 IntentIntegrator ii = IntentIntegrator.forSupportFragment(AddBook.this);
                 ii.setDesiredBarcodeFormats(IntentIntegrator.PRODUCT_CODE_TYPES);
                 ii.initiateScan();
@@ -154,7 +179,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             @Override
             public void onClick(View view) {
                 deleteBook(ean.getText().toString());
-                ean.setText("");
+                //don't delete the ISBN text content as there might be a typo
+                clearFields();
             }
         });
 
@@ -162,6 +188,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             ean.setText(savedInstanceState.getString(EAN_CONTENT));
             ean.setHint("");
         }
+
+        clearFields();
 
         return rootView;
     }
@@ -216,9 +244,15 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         if(eanStr.length()==10 && !eanStr.startsWith("978")){
             eanStr="978"+eanStr;
         }
+        long eanLong = 0;
+        try {
+            eanLong = Long.parseLong(eanStr);
+        } catch(NumberFormatException e) {
+            eanLong = 0;
+        }
         return new CursorLoader(
                 getActivity(),
-                AlexandriaContract.BookEntry.buildFullBookUri(Long.parseLong(eanStr)),
+                AlexandriaContract.BookEntry.buildFullBookUri(eanLong),
                 null,
                 null,
                 null,
@@ -232,33 +266,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             return;
         }
 
-        ean.setEnabled(false);
-        ean.setFocusable(false);
-        btnAdd_book_scan_button.setEnabled(false);
-
-        resultContent.setVisibility(View.VISIBLE);
-
         String bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
-        txtAdd_book_bookTitle.setText(bookTitle);
-
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
-        txtAdd_book_bookSubTitle.setText(bookSubTitle);
-
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
-        String[] authorsArr = authors.split(",");
-
-        txtAdd_book_authors.setLines(authorsArr.length);
-        txtAdd_book_authors.setText(authors.replace(",", "\n"));
         String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
-            Glide.with(this).load(imgUrl).into(imgAdd_book_bookCover);
-        }
-
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
-        txtAdd_book_categories.setText(categories);
 
-        btnAdd_book_save_button.setVisibility(View.VISIBLE);
-        btnAdd_book_delete_button.setVisibility(View.VISIBLE);
+        populateFields(bookTitle, bookSubTitle, authors, imgUrl, categories);
     }
 
     @Override
@@ -266,9 +280,34 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     }
 
+    private void populateFields(String bookTitle, String bookSubTitle, String authors, String imgUrl, String categories) {
+        ean.setEnabled(false);
+
+        btnAdd_book_scan_button.setEnabled(false);
+
+        resultContent.setVisibility(View.VISIBLE);
+
+        txtAdd_book_bookTitle.setText(bookTitle);
+        txtAdd_book_bookSubTitle.setText(bookSubTitle);
+
+        String[] authorsArr = authors.split(",");
+
+        txtAdd_book_authors.setLines(authorsArr.length);
+        txtAdd_book_authors.setText(authors.replace(",", "\n"));
+
+        if(Patterns.WEB_URL.matcher(imgUrl).matches()){
+            Glide.with(this).load(imgUrl).into(imgAdd_book_bookCover);
+        }
+
+        txtAdd_book_categories.setText(categories);
+
+        btnAdd_book_save_button.setVisibility(View.VISIBLE);
+        btnAdd_book_delete_button.setVisibility(View.VISIBLE);
+    }
+
     private void clearFields(){
         ean.setEnabled(true);
-        ean.setFocusable(true);
+
         btnAdd_book_scan_button.setEnabled(true);
         txtAdd_book_bookTitle.setText("");
         txtAdd_book_bookSubTitle.setText("");
