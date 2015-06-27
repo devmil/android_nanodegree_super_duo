@@ -32,4 +32,5 @@
     <string name="add_book_result_bad_format">Invalid server response. If this problem persists please update Alexandria.</string>
     <string name="add_book_result_error_connection">No valid network connection. Please try again when you have a valid connection.</string>
     <string name="add_book_result_not_found">No book found matching the given ISBN.</string>
+    <string name="fragment_list_of_books_searchText_hint">Search for a book</string>
 </resources>

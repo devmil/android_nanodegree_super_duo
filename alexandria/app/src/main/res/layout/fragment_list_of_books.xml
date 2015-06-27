@@ -25,6 +25,7 @@
             android:id="@+id/searchText"
             android:inputType="text"
             android:saveEnabled="true"
+            android:hint="@string/fragment_list_of_books_searchText_hint"
             android:layout_marginTop="10dp"
             android:layout_gravity="center_horizontal"
             android:layout_toLeftOf="@+id/searchButton"
