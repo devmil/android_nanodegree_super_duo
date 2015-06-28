@@ -1,6 +1,7 @@
 package barqsoft.footballscores.service;
 
 import android.app.IntentService;
+import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.ScoresAppWidget;
 import barqsoft.footballscores.Settings;
 import retrofit.RestAdapter;
 
@@ -94,6 +96,7 @@ public class MyFetchService extends IntentService
         allDone = getData(new FootballDataOrgService.TimeFrame(false, 2)) && allDone;
         if(allDone) {
             mSettings.notifyLastUpdateNow();
+            ScoresAppWidget.notifyDataChanged(this);
         }
     }
 
