@@ -4,27 +4,11 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Created by yehya khaled on 2/25/2015.
- */
 public class DatabaseContract
 {
     public static final String SCORES_TABLE = "scores_table";
     public static final class scores_table implements BaseColumns
     {
-        //Table data
-        public static final String LEAGUE_COL = "league";
-        public static final String DATE_COL = "date";
-        public static final String TIME_COL = "time";
-        public static final String HOME_COL = "home";
-        public static final String AWAY_COL = "away";
-        public static final String HOME_GOALS_COL = "home_goals";
-        public static final String AWAY_GOALS_COL = "away_goals";
-        public static final String MATCH_ID = "match_id";
-        public static final String MATCH_DAY = "match_day";
-
-        //public static Uri SCORES_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH)
-                //.build();
 
         //Types
         public static final String CONTENT_TYPE =
@@ -49,4 +33,38 @@ public class DatabaseContract
     public static final String CONTENT_AUTHORITY = "barqsoft.footballscores";
     public static final String PATH = "scores";
     public static Uri BASE_CONTENT_URI = Uri.parse("content://"+CONTENT_AUTHORITY);
+
+    public enum Column {
+
+        Date        (1, "date"      ),
+        MatchTime   (2, "time"      ),
+        Home        (3, "home"      ),
+        Away        (4, "away"      ),
+        League      (5, "league"    ),
+        HomeGoals   (6, "home_goals"),
+        AwayGoals   (7, "away_goals"),
+        Id          (8, "match_id"  ),
+        MatchDay    (9, "match_day" );
+
+        private int indexDefaultProjection;
+        private String name;
+
+        Column(int indexDefaultProjection, String name) {
+            this.indexDefaultProjection = indexDefaultProjection;
+            this.name = name;
+        }
+
+        public int getTableIndex() {
+            return indexDefaultProjection;
+        }
+
+        public String getColumnName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return getColumnName();
+        }
+    }
 }

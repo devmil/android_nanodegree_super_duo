@@ -5,12 +5,9 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
-/**
- * Created by yehya khaled on 2/25/2015.
- */
 public class ScoresProvider extends ContentProvider
 {
     private static ScoresDBHelper mOpenHelper;
@@ -19,13 +16,11 @@ public class ScoresProvider extends ContentProvider
     private static final int MATCHES_WITH_ID = 102;
     private static final int MATCHES_WITH_DATE = 103;
     private UriMatcher muriMatcher = buildUriMatcher();
-    private static final SQLiteQueryBuilder ScoreQuery =
-            new SQLiteQueryBuilder();
-    private static final String SCORES_BY_LEAGUE = DatabaseContract.scores_table.LEAGUE_COL + " = ?";
+    private static final String SCORES_BY_LEAGUE = DatabaseContract.Column.League + " = ?";
     private static final String SCORES_BY_DATE =
-            DatabaseContract.scores_table.DATE_COL + " LIKE ?";
+            DatabaseContract.Column.Date + " LIKE ?";
     private static final String SCORES_BY_ID =
-            DatabaseContract.scores_table.MATCH_ID + " = ?";
+            DatabaseContract.Column.Id + " = ?";
 
 
     static UriMatcher buildUriMatcher() {
@@ -131,7 +126,7 @@ public class ScoresProvider extends ContentProvider
     }
 
     @Override
-    public int bulkInsert(Uri uri, ContentValues[] values)
+    public int bulkInsert(Uri uri, @NonNull ContentValues[] values)
     {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         //db.delete(DatabaseContract.SCORES_TABLE,null,null);

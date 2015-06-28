@@ -2,38 +2,20 @@ package barqsoft.footballscores.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import barqsoft.footballscores.DatabaseContract;
-import barqsoft.footballscores.R;
 import retrofit.RestAdapter;
 
-/**
- * Created by yehya khaled on 3/2/2015.
- */
 public class myFetchService extends IntentService
 {
     public static final String LOG_TAG = "myFetchService";
@@ -47,8 +29,6 @@ public class myFetchService extends IntentService
     {
         getData(new FootballDataOrgService.TimeFrame(true, 2));
         getData(new FootballDataOrgService.TimeFrame(false, 2));
-
-        return;
     }
 
     private void getData (FootballDataOrgService.TimeFrame timeFrame)
@@ -134,17 +114,17 @@ public class myFetchService extends IntentService
         final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
 
         //Match data
-        String league = null;
-        String mDate = null;
-        String mTime = null;
-        String Home = null;
-        String Away = null;
-        String Home_goals = null;
-        String Away_goals = null;
-        String match_id = null;
-        String match_day = null;
+        String league;
+        String date;
+        String time;
+        String home;
+        String away;
+        String homeGoals;
+        String awayGoals;
+        String matchId;
+        String matchDay;
 
-        SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
+        SimpleDateFormat match_date = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss", Locale.US);
         match_date.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 
@@ -154,7 +134,7 @@ public class myFetchService extends IntentService
         }
 
         //ContentValues to be inserted
-        Vector<ContentValues> values = new Vector <ContentValues> (fixtures.size());
+        Vector<ContentValues> values = new Vector<>(fixtures.size());
         for(int i = 0;i < fixtures.size();i++)
         {
             FootballDataOrgService.Fixture fixture = fixtures.get(i);
@@ -177,30 +157,30 @@ public class myFetchService extends IntentService
                     continue;
                 }
 
-                match_id = fixture._links.self.href;
-                match_id = match_id.replace(MATCH_LINK, "");
+                matchId = fixture._links.self.href;
+                matchId = matchId.replace(MATCH_LINK, "");
                 if(!isReal){
                     //This if statement changes the match ID of the dummy data so that it all goes into the database
-                    match_id=match_id+Integer.toString(i);
+                    matchId=matchId+Integer.toString(i);
                 }
 
-                mDate = fixture.date;
-                mTime = mDate.substring(mDate.indexOf("T") + 1, mDate.indexOf("Z"));
-                mDate = mDate.substring(0,mDate.indexOf("T"));
+                date = fixture.date;
+                time = date.substring(date.indexOf("T") + 1, date.indexOf("Z"));
+                date = date.substring(0,date.indexOf("T"));
 
                 try {
-                    Date parseddate = match_date.parse(mDate+mTime);
-                    SimpleDateFormat new_date = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
+                    Date parseddate = match_date.parse(date+time);
+                    SimpleDateFormat new_date = new SimpleDateFormat("yyyy-MM-dd:HH:mm", Locale.US);
                     new_date.setTimeZone(TimeZone.getDefault());
-                    mDate = new_date.format(parseddate);
-                    mTime = mDate.substring(mDate.indexOf(":") + 1);
-                    mDate = mDate.substring(0,mDate.indexOf(":"));
+                    date = new_date.format(parseddate);
+                    time = date.substring(date.indexOf(":") + 1);
+                    date = date.substring(0,date.indexOf(":"));
 
                     if(!isReal){
                         //This if statement changes the dummy data's date to match our current date range.
                         Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
-                        SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
-                        mDate=mformat.format(fragmentdate);
+                        SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                        date=mformat.format(fragmentdate);
                     }
                 }
                 catch (Exception e)
@@ -209,36 +189,35 @@ public class myFetchService extends IntentService
                     Log.e(LOG_TAG,e.getMessage());
                 }
 
-                Home = fixture.homeTeamName;
-                Away = fixture.awayTeamName;
+                home = fixture.homeTeamName;
+                away = fixture.awayTeamName;
 
                 if(fixture.result == null) {
                     continue;
                 }
 
-                Home_goals = Integer.toString(fixture.result.goalsHomeTeam);
-                Away_goals = Integer.toString(fixture.result.goalsAwayTeam);
-                match_day = Integer.toString(fixture.matchday);
+                homeGoals = Integer.toString(fixture.result.goalsHomeTeam);
+                awayGoals = Integer.toString(fixture.result.goalsAwayTeam);
+                matchDay = Integer.toString(fixture.matchday);
 
                 ContentValues match_values = new ContentValues();
-                match_values.put(DatabaseContract.scores_table.MATCH_ID,match_id);
-                match_values.put(DatabaseContract.scores_table.DATE_COL,mDate);
-                match_values.put(DatabaseContract.scores_table.TIME_COL,mTime);
-                match_values.put(DatabaseContract.scores_table.HOME_COL,Home);
-                match_values.put(DatabaseContract.scores_table.AWAY_COL,Away);
-                match_values.put(DatabaseContract.scores_table.HOME_GOALS_COL,Home_goals);
-                match_values.put(DatabaseContract.scores_table.AWAY_GOALS_COL,Away_goals);
-                match_values.put(DatabaseContract.scores_table.LEAGUE_COL,league);
-                match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
+                match_values.put(DatabaseContract.Column.Id.getColumnName() ,matchId);
+                match_values.put(DatabaseContract.Column.Date.getColumnName(), date);
+                match_values.put(DatabaseContract.Column.MatchTime.getColumnName(), time);
+                match_values.put(DatabaseContract.Column.Home.getColumnName(), home);
+                match_values.put(DatabaseContract.Column.Away.getColumnName(), away);
+                match_values.put(DatabaseContract.Column.HomeGoals.getColumnName(), homeGoals);
+                match_values.put(DatabaseContract.Column.AwayGoals.getColumnName(), awayGoals);
+                match_values.put(DatabaseContract.Column.League.getColumnName(), league);
+                match_values.put(DatabaseContract.Column.MatchDay.getColumnName(), matchDay);
 
                 values.add(match_values);
             }
         }
-        int inserted_data = 0;
         ContentValues[] insert_data = new ContentValues[values.size()];
         values.toArray(insert_data);
-        inserted_data = getContentResolver().bulkInsert(
-                DatabaseContract.BASE_CONTENT_URI,insert_data);
+        getContentResolver().bulkInsert(
+                DatabaseContract.BASE_CONTENT_URI, insert_data);
     }
 }
 

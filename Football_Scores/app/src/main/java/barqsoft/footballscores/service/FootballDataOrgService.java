@@ -1,7 +1,5 @@
 package barqsoft.footballscores.service;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import retrofit.http.GET;
@@ -17,14 +15,6 @@ public interface FootballDataOrgService {
         public TimeFrame(boolean future, int days) {
             this.future = future;
             this.days = days;
-        }
-
-        public boolean isFuture() {
-            return future;
-        }
-
-        public int getDays() {
-            return days;
         }
 
         @Override

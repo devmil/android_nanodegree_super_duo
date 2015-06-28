@@ -2,12 +2,13 @@ package barqsoft.footballscores;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends AppCompatActivity
 {
     public static int selected_match_id;
     public static int current_fragment = 2;
@@ -20,7 +21,7 @@ public class MainActivity extends ActionBarActivity
         if (savedInstanceState == null) {
             my_main = new PagerFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, my_main)
+                    .add(R.id.activity_main_container, my_main)
                     .commit();
         }
     }
@@ -64,7 +65,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState)
     {
         Log.v(save_tag,"will retrive");
         Log.v(save_tag,"fragment: "+String.valueOf(savedInstanceState.getInt("Pager_Current")));

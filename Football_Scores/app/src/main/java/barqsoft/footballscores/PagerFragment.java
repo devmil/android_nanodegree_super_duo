@@ -14,26 +14,23 @@ import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
-/**
- * Created by yehya khaled on 2/27/2015.
- */
 public class PagerFragment extends Fragment
 {
     public static final int NUM_PAGES = 5;
     public ViewPager mPagerHandler;
-    private myPageAdapter mPagerAdapter;
     private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.pager_fragment, container, false);
-        mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager);
-        mPagerAdapter = new myPageAdapter(getChildFragmentManager());
+        mPagerHandler = (ViewPager) rootView.findViewById(R.id.pager_fragment_pager);
+        MyPageAdapter mPagerAdapter = new MyPageAdapter(getChildFragmentManager());
         for (int i = 0;i < NUM_PAGES;i++)
         {
             Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
-            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             viewFragments[i] = new MainScreenFragment();
             viewFragments[i].setFragmentDate(mformat.format(fragmentdate));
         }
@@ -41,7 +38,7 @@ public class PagerFragment extends Fragment
         mPagerHandler.setCurrentItem(MainActivity.current_fragment);
         return rootView;
     }
-    private class myPageAdapter extends FragmentStatePagerAdapter
+    private class MyPageAdapter extends FragmentStatePagerAdapter
     {
         @Override
         public Fragment getItem(int i)
@@ -55,7 +52,7 @@ public class PagerFragment extends Fragment
             return NUM_PAGES;
         }
 
-        public myPageAdapter(FragmentManager fm)
+        public MyPageAdapter(FragmentManager fm)
         {
             super(fm);
         }
@@ -87,7 +84,7 @@ public class PagerFragment extends Fragment
                 Time time = new Time();
                 time.setToNow();
                 // Otherwise, the format is just the day of the week (e.g "Wednesday".
-                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
                 return dayFormat.format(dateInMillis);
             }
         }

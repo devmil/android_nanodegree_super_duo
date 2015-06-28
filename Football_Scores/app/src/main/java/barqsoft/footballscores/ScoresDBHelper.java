@@ -6,9 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import barqsoft.footballscores.DatabaseContract.scores_table;
 
-/**
- * Created by yehya khaled on 2/25/2015.
- */
 public class ScoresDBHelper extends SQLiteOpenHelper
 {
     public static final String DATABASE_NAME = "Scores.db";
@@ -22,17 +19,17 @@ public class ScoresDBHelper extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         final String CreateScoresTable = "CREATE TABLE " + DatabaseContract.SCORES_TABLE + " ("
-                + scores_table._ID + " INTEGER PRIMARY KEY,"
-                + scores_table.DATE_COL + " TEXT NOT NULL,"
-                + scores_table.TIME_COL + " INTEGER NOT NULL,"
-                + scores_table.HOME_COL + " TEXT NOT NULL,"
-                + scores_table.AWAY_COL + " TEXT NOT NULL,"
-                + scores_table.LEAGUE_COL + " INTEGER NOT NULL,"
-                + scores_table.HOME_GOALS_COL + " TEXT NOT NULL,"
-                + scores_table.AWAY_GOALS_COL + " TEXT NOT NULL,"
-                + scores_table.MATCH_ID + " INTEGER NOT NULL,"
-                + scores_table.MATCH_DAY + " INTEGER NOT NULL,"
-                + " UNIQUE ("+scores_table.MATCH_ID+") ON CONFLICT REPLACE"
+                + scores_table._ID                  + " INTEGER PRIMARY KEY,"
+                + DatabaseContract.Column.Date      + " TEXT NOT NULL,"
+                + DatabaseContract.Column.MatchTime + " INTEGER NOT NULL,"
+                + DatabaseContract.Column.Home      + " TEXT NOT NULL,"
+                + DatabaseContract.Column.Away      + " TEXT NOT NULL,"
+                + DatabaseContract.Column.League    + " INTEGER NOT NULL,"
+                + DatabaseContract.Column.HomeGoals + " TEXT NOT NULL,"
+                + DatabaseContract.Column.AwayGoals + " TEXT NOT NULL,"
+                + DatabaseContract.Column.Id        + " INTEGER NOT NULL,"
+                + DatabaseContract.Column.MatchDay  + " INTEGER NOT NULL,"
+                + " UNIQUE ("+DatabaseContract.Column.Id+") ON CONFLICT REPLACE"
                 + " );";
         db.execSQL(CreateScoresTable);
     }
