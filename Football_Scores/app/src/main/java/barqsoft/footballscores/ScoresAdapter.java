@@ -13,7 +13,8 @@ import android.widget.TextView;
 public class ScoresAdapter extends CursorAdapter
 {
 
-    public double detail_match_id = 0;
+    private double detail_match_id = 0;
+
     @SuppressWarnings("FieldCanBeLocal")
     private String FOOTBALL_SCORES_HASHTAG = "#Football_Scores";
     public ScoresAdapter(Context context, Cursor cursor, int flags)
@@ -29,6 +30,17 @@ public class ScoresAdapter extends CursorAdapter
         mItem.setTag(mHolder);
         //Log.v(FetchScoreTask.LOG_TAG,"new View inflated");
         return mItem;
+    }
+
+    public void setDetailMatchId(double detailMatchId) {
+        if(detailMatchId != detail_match_id) {
+            detail_match_id = detailMatchId;
+            notifyDataSetChanged();
+        }
+    }
+
+    public double getDetailMatchId() {
+        return detail_match_id;
     }
 
     @Override

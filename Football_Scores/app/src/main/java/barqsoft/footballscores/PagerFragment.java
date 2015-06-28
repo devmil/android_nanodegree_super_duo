@@ -18,6 +18,10 @@ import java.util.Locale;
 
 public class PagerFragment extends Fragment
 {
+    public static final String ARG_INITIAL_FRAGMENT = "INITIAL_FRAGMENT";
+
+    private static final String KEY_ACTIVE_FRAGMENT = "ACTIVE_FRAGMENT";
+
     public static final int NUM_PAGES = 5;
     public ViewPager mPagerHandler;
     private MainScreenFragment[] viewFragments = new MainScreenFragment[5];
@@ -35,9 +39,38 @@ public class PagerFragment extends Fragment
             viewFragments[i].setFragmentDate(mformat.format(fragmentdate));
         }
         mPagerHandler.setAdapter(mPagerAdapter);
-        mPagerHandler.setCurrentItem(MainActivity.current_fragment);
+
+        boolean indexInitialized = false;
+
+        if(savedInstanceState != null) {
+            if(savedInstanceState.containsKey(KEY_ACTIVE_FRAGMENT)) {
+                mPagerHandler.setCurrentItem(savedInstanceState.getInt(KEY_ACTIVE_FRAGMENT));
+                indexInitialized = true;
+            }
+        }
+        if(!indexInitialized
+            && getArguments() != null
+            && getArguments().containsKey(ARG_INITIAL_FRAGMENT)) {
+
+            mPagerHandler.setCurrentItem(getArguments().getInt(ARG_INITIAL_FRAGMENT));
+            indexInitialized = true;
+        }
+
+        if(!indexInitialized) {
+            mPagerHandler.setCurrentItem(0);
+        }
+
         return rootView;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(outState != null) {
+            outState.putInt(KEY_ACTIVE_FRAGMENT, mPagerHandler.getCurrentItem());
+        }
+    }
+
     private class MyPageAdapter extends FragmentStatePagerAdapter
     {
         @Override

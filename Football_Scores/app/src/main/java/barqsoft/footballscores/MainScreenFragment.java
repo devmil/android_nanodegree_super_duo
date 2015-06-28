@@ -13,14 +13,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import barqsoft.footballscores.service.myFetchService;
+import barqsoft.footballscores.service.MyFetchService;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
-    public ScoresAdapter mAdapter;
+    private static final String KEY_DETAIL_MATCH_ID = "DETAIL_MATCH_ID";
+
+    private ScoresAdapter mAdapter;
     public static final int SCORES_LOADER = 0;
     private String[] fragmentDate = new String[1];
 
@@ -30,8 +32,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
 
     private void update_scores()
     {
-        Intent service_start = new Intent(getActivity(), myFetchService.class);
-        getActivity().startService(service_start);
+        getActivity().startService(MyFetchService.createCheckUpdateIntent(getActivity()));
     }
     public void setFragmentDate(String date)
     {
@@ -46,19 +47,30 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         mAdapter = new ScoresAdapter(getActivity(),null,0);
         score_list.setAdapter(mAdapter);
         getLoaderManager().initLoader(SCORES_LOADER,null,this);
-        mAdapter.detail_match_id = MainActivity.selected_match_id;
+        if(savedInstanceState != null) {
+            if(savedInstanceState.containsKey(KEY_DETAIL_MATCH_ID)) {
+                mAdapter.setDetailMatchId(savedInstanceState.getDouble(KEY_DETAIL_MATCH_ID));
+            }
+        }
+
         score_list.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 ViewHolder selected = (ViewHolder) view.getTag();
-                mAdapter.detail_match_id = selected.match_id;
-                MainActivity.selected_match_id = (int) selected.match_id;
-                mAdapter.notifyDataSetChanged();
+                mAdapter.setDetailMatchId(selected.match_id);
             }
         });
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(outState != null) {
+            outState.putDouble(KEY_DETAIL_MATCH_ID, mAdapter.getDetailMatchId());
+        }
     }
 
     @Override

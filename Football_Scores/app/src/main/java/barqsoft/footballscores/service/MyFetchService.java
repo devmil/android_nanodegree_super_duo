@@ -2,11 +2,13 @@ package barqsoft.footballscores.service;
 
 import android.app.IntentService;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -14,24 +16,88 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.Settings;
 import retrofit.RestAdapter;
 
-public class myFetchService extends IntentService
+public class MyFetchService extends IntentService
 {
-    public static final String LOG_TAG = "myFetchService";
-    public myFetchService()
+    private static final String LOG_TAG = "MyFetchService";
+
+    private static final long UPDATE_INTERVAL_MS = 3 /* h */ * 60 /* min */ * 60 /* sec */ * 1000 /* msec */;
+
+    private static final String ACTION_CHECK_UPDATE = "ACTION_CHECK_UPDATE";
+    private static final String ACTION_FORCE_UPDATE = "ACTION_FORCE_UPDATE";
+
+    public static Intent createCheckUpdateIntent(Context context) {
+        Intent result = new Intent(context, MyFetchService.class);
+        result.setAction(ACTION_CHECK_UPDATE);
+        return result;
+    }
+
+    @SuppressWarnings("unused")
+    public static Intent createForceUpdateIntent(Context context) {
+        Intent result = new Intent(context, MyFetchService.class);
+        result.setAction(ACTION_FORCE_UPDATE);
+        return result;
+    }
+
+    private Settings mSettings;
+
+    public MyFetchService()
     {
-        super("myFetchService");
+        super("MyFetchService");
+        mSettings = new Settings(this);
     }
 
     @Override
     protected void onHandleIntent(Intent intent)
     {
-        getData(new FootballDataOrgService.TimeFrame(true, 2));
-        getData(new FootballDataOrgService.TimeFrame(false, 2));
+        if(intent == null) {
+            return;
+        }
+
+        switch(intent.getAction()) {
+            case ACTION_CHECK_UPDATE:
+                doLoadDataIfDirty();
+                break;
+            case ACTION_FORCE_UPDATE:
+                doLoadData();
+                break;
+        }
     }
 
-    private void getData (FootballDataOrgService.TimeFrame timeFrame)
+    private void doLoadDataIfDirty() {
+        boolean dataIsDirty = false;
+
+        if(!mSettings.hasInitialLoadingDone()) {
+            dataIsDirty = true;
+        }
+
+        if(!dataIsDirty) {
+            Date now = Calendar.getInstance().getTime();
+            Date lastUpdate = mSettings.getLastUpdate();
+
+            long diffMS = now.getTime() - lastUpdate.getTime();
+            dataIsDirty = diffMS > UPDATE_INTERVAL_MS;
+        }
+        if(dataIsDirty) {
+            doLoadData();
+        } else {
+            Log.d(LOG_TAG, "Skipping update because the data is fresh enough.");
+        }
+    }
+
+    private void doLoadData() {
+        Log.d(LOG_TAG, "Loading data");
+        boolean allDone;
+        allDone = getData(new FootballDataOrgService.TimeFrame(true, 2));
+        allDone = getData(new FootballDataOrgService.TimeFrame(false, 2)) && allDone;
+        if(allDone) {
+            mSettings.notifyLastUpdateNow();
+        }
+    }
+
+    private boolean getData (FootballDataOrgService.TimeFrame timeFrame)
     {
         RestAdapter adapter = new RestAdapter.Builder()
                 .setEndpoint("http://api.football-data.org")
@@ -39,13 +105,14 @@ public class myFetchService extends IntentService
 
         FootballDataOrgService fbService = adapter.create(FootballDataOrgService.class);
 
-        FootballDataOrgService.TimeFrameResult fbResult = null;
+        FootballDataOrgService.TimeFrameResult fbResult;
 
         try {
             fbResult = fbService.queryTimeFrame(timeFrame, "e136b7858d424b9da07c88f28b61989a");
         }
         catch (Exception e) {
             Log.e(LOG_TAG,"Exception here" + e.getMessage());
+            return false;
         }
 
         boolean isFake = false;
@@ -56,7 +123,7 @@ public class myFetchService extends IntentService
             isFake = true;
         }
 
-        processFootballData(fbResult, !isFake);
+        return processFootballData(fbResult, !isFake);
     }
 
     private FootballDataOrgService.TimeFrameResult getFakeResult() {
@@ -102,7 +169,7 @@ public class myFetchService extends IntentService
         return null;
     }
 
-    private void processFootballData (FootballDataOrgService.TimeFrameResult data, boolean isReal)
+    private boolean processFootballData (FootballDataOrgService.TimeFrameResult data, boolean isReal)
     {
         //JSON data
         final String SERIE_A = "357";
@@ -218,6 +285,7 @@ public class myFetchService extends IntentService
         values.toArray(insert_data);
         getContentResolver().bulkInsert(
                 DatabaseContract.BASE_CONTENT_URI, insert_data);
+        return true;
     }
 }
 
