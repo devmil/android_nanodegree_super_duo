@@ -44,10 +44,10 @@ public class MainActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
 
-            int dayOffset = 2;
+            int dayOffset = 0;
             if(getIntent() != null
                     && getIntent().hasExtra(ARG_DAY_OFFSET)) {
-                dayOffset = getIntent().getIntExtra(ARG_DAY_OFFSET, 2);
+                dayOffset = getIntent().getIntExtra(ARG_DAY_OFFSET, 0);
             }
 
             my_main = new PagerFragment();
