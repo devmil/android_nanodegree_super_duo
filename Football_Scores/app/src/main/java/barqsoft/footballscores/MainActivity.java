@@ -1,5 +1,6 @@
 package barqsoft.footballscores;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,15 +13,46 @@ public class MainActivity extends AppCompatActivity
 {
     private final String save_tag = "Save Test";
     private PagerFragment my_main;
+
+    private static final String ARG_DAY_OFFSET = "DAY_OFFSET";
+
+    public static Intent createFillIntent(int dayOffset) {
+        Bundle extras = new Bundle();
+        extras.putInt(ARG_DAY_OFFSET, dayOffset);
+
+        Intent result = new Intent();
+        result.putExtras(extras);
+
+        return result;
+    }
+
+    public static Intent createLaunchIntent(Context context, int dayOffest) {
+        Intent result = new Intent(context, MainActivity.class);
+        result.putExtra(ARG_DAY_OFFSET, dayOffest);
+        return result;
+    }
+
+    public static Intent createLaunchIntent(Context context) {
+        Intent result = new Intent(context, MainActivity.class);
+        return result;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
+
+            int dayOffset = 2;
+            if(getIntent() != null
+                    && getIntent().hasExtra(ARG_DAY_OFFSET)) {
+                dayOffset = getIntent().getIntExtra(ARG_DAY_OFFSET, 2);
+            }
 
             my_main = new PagerFragment();
             Bundle args = new Bundle();
-            args.putInt(PagerFragment.ARG_INITIAL_FRAGMENT, 2);
+            args.putInt(PagerFragment.ARG_INITIAL_FRAGMENT_OFFSET, dayOffset);
             my_main.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()

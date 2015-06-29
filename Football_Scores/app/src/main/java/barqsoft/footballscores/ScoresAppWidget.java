@@ -1,5 +1,6 @@
 package barqsoft.footballscores;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
+import barqsoft.footballscores.service.MyFetchService;
 import barqsoft.footballscores.service.ScoresAppWidgetService;
 
 /**
@@ -48,6 +50,10 @@ public class ScoresAppWidget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.scores_app_widget);
         views.setRemoteAdapter(R.id.scores_app_widget_list, intent);
         views.setEmptyView(R.id.scores_app_widget_list, R.id.scores_app_widget_empty_text);
+
+        Intent launchIntent = MainActivity.createLaunchIntent(context);
+        PendingIntent launchPendingIntent = PendingIntent.getActivity(context, 0, launchIntent, 0);
+        views.setPendingIntentTemplate(R.id.scores_app_widget_list, launchPendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }

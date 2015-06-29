@@ -6,6 +6,7 @@
     android:background="@drawable/list_item"
     >
     <LinearLayout
+        android:id="@+id/scores_list_item_frame"
         android:orientation="horizontal" android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="5dp"

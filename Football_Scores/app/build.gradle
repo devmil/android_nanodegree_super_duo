@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        //Only runs on OSX when Android Studio is forced to JVM 1.7* in the info.plist
+        //for now: copied already converted svg to the drawable folders
+        //TODO: uncomment for Victor to get active
+        //classpath 'com.trello:victor:0.1.4'
+    }
+}
+
 apply plugin: 'com.android.application'
+
+//TODO: uncomment for Victor to get active
+//apply plugin: 'com.trello.victor'
 
 android {
     compileSdkVersion 22
@@ -17,6 +32,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    //TODO: uncomment for Victor to get active
+//    sourceSets {
+//        main {
+//            svg.srcDir 'src/main/svg'
+//        }
+//    }
 }
 
 dependencies {

@@ -37,4 +37,5 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="scores_app_widget_no_data_text">No data to show</string>
+    <string name="scores_app_widget_force_refresh_content_description">Forces a data refresh</string>
 </resources>

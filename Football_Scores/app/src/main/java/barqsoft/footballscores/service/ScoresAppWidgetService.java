@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utilities;
 
@@ -83,7 +84,7 @@ public class ScoresAppWidgetService extends RemoteViewsService {
                             null
                     );
             while (cursor.moveToNext()) {
-                addItem(cursor);
+                addItem(offset, cursor);
             }
             cursor.close();
         }
@@ -117,6 +118,10 @@ public class ScoresAppWidgetService extends RemoteViewsService {
 
             result.setImageViewResource(R.id.scores_list_item_home_crest, item.getHomeCrestImageId());
             result.setImageViewResource(R.id.scores_list_item_away_crest, item.getAwayCrestImageId());
+
+            Intent fillIntent = MainActivity.createFillIntent(item.getDayOffset());
+
+            result.setOnClickFillInIntent(R.id.scores_list_item_frame, fillIntent);
 
             return result;
         }
@@ -154,7 +159,7 @@ public class ScoresAppWidgetService extends RemoteViewsService {
 
         }
 
-        private void addItem(Cursor cursor) {
+        private void addItem(int dayOffset, Cursor cursor) {
 
             String homeName = cursor.getString(DatabaseContract.Column.Home.getTableIndex());
             String awayName = cursor.getString(DatabaseContract.Column.Away.getTableIndex());
@@ -163,11 +168,12 @@ public class ScoresAppWidgetService extends RemoteViewsService {
             int homeCrestId = Utilities.getTeamCrestByTeamName(cursor.getString(DatabaseContract.Column.Home.getTableIndex()));
             int awayCrestId = Utilities.getTeamCrestByTeamName(cursor.getString(DatabaseContract.Column.Away.getTableIndex()));
 
-            items.add(new FixtureItem(homeName, awayName, date, score, homeCrestId, awayCrestId));
+            items.add(new FixtureItem(dayOffset, homeName, awayName, date, score, homeCrestId, awayCrestId));
         }
     }
 
     static class FixtureItem {
+        private int dayOffset;
         private String homeName;
         private String awayName;
         private String date;
@@ -175,13 +181,18 @@ public class ScoresAppWidgetService extends RemoteViewsService {
         private int homeCrestImageId;
         private int awayCrestImageId;
 
-        public FixtureItem(String homeName, String awayName, String date, String score, int homeCrestImageId, int awayCrestImageId) {
+        public FixtureItem(int dayOffset, String homeName, String awayName, String date, String score, int homeCrestImageId, int awayCrestImageId) {
+            this.dayOffset = dayOffset;
             this.homeName = homeName;
             this.awayName = awayName;
             this.date = date;
             this.score = score;
             this.homeCrestImageId = homeCrestImageId;
             this.awayCrestImageId = awayCrestImageId;
+        }
+
+        public int getDayOffset() {
+            return dayOffset;
         }
 
         public String getHomeName() {

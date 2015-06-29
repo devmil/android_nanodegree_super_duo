@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class PagerFragment extends Fragment
 {
-    public static final String ARG_INITIAL_FRAGMENT = "INITIAL_FRAGMENT";
+    public static final String ARG_INITIAL_FRAGMENT_OFFSET = "INITIAL_FRAGMENT_OFFSET";
 
     private static final String KEY_ACTIVE_FRAGMENT = "ACTIVE_FRAGMENT";
 
@@ -50,9 +50,9 @@ public class PagerFragment extends Fragment
         }
         if(!indexInitialized
             && getArguments() != null
-            && getArguments().containsKey(ARG_INITIAL_FRAGMENT)) {
+            && getArguments().containsKey(ARG_INITIAL_FRAGMENT_OFFSET)) {
 
-            mPagerHandler.setCurrentItem(getArguments().getInt(ARG_INITIAL_FRAGMENT));
+            mPagerHandler.setCurrentItem(2 + getArguments().getInt(ARG_INITIAL_FRAGMENT_OFFSET));
             indexInitialized = true;
         }
 
