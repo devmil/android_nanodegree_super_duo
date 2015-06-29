@@ -8,6 +8,8 @@ import java.util.Locale;
 
 public class Utilities
 {
+    public static final long MS_PER_DAY = 24 /* h */ * 60 /* min */ * 60 /* sec */ * 1000 /* msec */;
+
     public static final int SERIE_A = 357;
     public static final int PREMIER_LEGAUE = 354;
     public static final int CHAMPIONS_LEAGUE = 362;
@@ -112,5 +114,9 @@ public class Utilities
             SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
             return dayFormat.format(dateInMillis);
         }
+    }
+
+    public static long getMillisecondsDayOffset(int dayOffset) {
+        return System.currentTimeMillis() + dayOffset * MS_PER_DAY;
     }
 }

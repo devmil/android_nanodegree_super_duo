@@ -1,10 +1,12 @@
 package barqsoft.footballscores.service;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
-import android.appwidget.AppWidgetManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -19,6 +21,7 @@ import java.util.Vector;
 import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.ScoresAppWidget;
 import barqsoft.footballscores.Settings;
+import barqsoft.footballscores.Utilities;
 import retrofit.RestAdapter;
 
 public class MyFetchService extends IntentService
@@ -82,6 +85,7 @@ public class MyFetchService extends IntentService
             long diffMS = now.getTime() - lastUpdate.getTime();
             dataIsDirty = diffMS > UPDATE_INTERVAL_MS;
         }
+
         if(dataIsDirty) {
             doLoadData();
         } else {
@@ -98,6 +102,7 @@ public class MyFetchService extends IntentService
             mSettings.notifyLastUpdateNow();
             ScoresAppWidget.notifyDataChanged(this);
         }
+        scheduleNextUpdate();
     }
 
     private boolean getData (FootballDataOrgService.TimeFrame timeFrame)
@@ -289,6 +294,18 @@ public class MyFetchService extends IntentService
         getContentResolver().bulkInsert(
                 DatabaseContract.BASE_CONTENT_URI, insert_data);
         return true;
+    }
+
+    private void scheduleNextUpdate() {
+        AlarmManager am = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        long msTomorrow = SystemClock.elapsedRealtime() + Utilities.MS_PER_DAY;
+
+        Intent updateIntent = createForceUpdateIntent(this);
+        PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        am.cancel(pendingUpdateIntent);
+        am.set(AlarmManager.ELAPSED_REALTIME, msTomorrow, pendingUpdateIntent);
     }
 }
 

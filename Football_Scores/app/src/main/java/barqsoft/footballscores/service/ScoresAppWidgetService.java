@@ -23,8 +23,6 @@ import barqsoft.footballscores.Utilities;
 
 public class ScoresAppWidgetService extends RemoteViewsService {
 
-    private static final long MS_PER_DAY = 24 /* h */ * 60 /* min */ * 60 /* sec */ * 1000 /* msec */;
-
     public static Intent createUpdateIntent(Context context, int appWidgetId) {
         Intent result = new Intent(context, ScoresAppWidgetService.class);
         result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
@@ -179,14 +177,14 @@ public class ScoresAppWidgetService extends RemoteViewsService {
         }
 
         private String getDateStringRelativeToday(int daysOffset) {
-            Date date = new Date(System.currentTimeMillis() + daysOffset * MS_PER_DAY);
+            Date date = new Date(Utilities.getMillisecondsDayOffset(daysOffset));
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             return format.format(date);
 
         }
 
         private FixtureItem createHeadlineItem(Context context, int offset) {
-            Date date = new Date(System.currentTimeMillis() + offset * MS_PER_DAY);
+            Date date = new Date(Utilities.getMillisecondsDayOffset(offset));
 
             String dayName = Utilities.getDayName(context, date.getTime());
 
