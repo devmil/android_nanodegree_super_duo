@@ -74,6 +74,7 @@ public class ScoresAppWidgetService extends RemoteViewsService {
         }
 
         private void addScoresWithDayOffset(Context context, int offset) {
+            items.add(createHeadlineItem(context, offset));
             Cursor cursor = context
                     .getContentResolver()
                     .query(
@@ -105,6 +106,31 @@ public class ScoresAppWidgetService extends RemoteViewsService {
             }
             FixtureItem item = items.get(position);
 
+            RemoteViews result;
+
+            if(!item.isHeadline()) {
+                result = createFixtureView(context, item);
+            } else {
+                result = createDayHeadlineView(context, item);
+            }
+
+            return result;
+        }
+
+        private RemoteViews createDayHeadlineView(Context context, FixtureItem item) {
+            RemoteViews result = new RemoteViews(context.getPackageName(), R.layout.scores_app_widget_headlines);
+
+            result.setTextViewText(R.id.scores_app_widget_headline_text, item.getHeadline());
+            result.setTextColor(R.id.scores_app_widget_headline_text, Color.BLACK);
+
+            Intent fillIntent = MainActivity.createFillIntent(item.getDayOffset());
+
+            result.setOnClickFillInIntent(R.id.scores_app_widget_headline_frame, fillIntent);
+
+            return result;
+        }
+
+        private RemoteViews createFixtureView(Context context, FixtureItem item) {
             RemoteViews result = new RemoteViews(context.getPackageName(), R.layout.scores_list_item);
 
             result.setTextViewText(R.id.scores_list_item_home_name, item.getHomeName());
@@ -133,7 +159,7 @@ public class ScoresAppWidgetService extends RemoteViewsService {
 
         @Override
         public int getViewTypeCount() {
-            return 1;
+            return 2;
         }
 
         @Override
@@ -148,7 +174,7 @@ public class ScoresAppWidgetService extends RemoteViewsService {
 
         private String[] getDateStringRelativeTodaySelection(int daysOffset) {
             String[] result = new String[1];
-            result[0] = getDateStringRelativeToday(0);
+            result[0] = getDateStringRelativeToday(daysOffset);
             return result;
         }
 
@@ -157,6 +183,14 @@ public class ScoresAppWidgetService extends RemoteViewsService {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             return format.format(date);
 
+        }
+
+        private FixtureItem createHeadlineItem(Context context, int offset) {
+            Date date = new Date(System.currentTimeMillis() + offset * MS_PER_DAY);
+
+            String dayName = Utilities.getDayName(context, date.getTime());
+
+            return new FixtureItem(offset, dayName);
         }
 
         private void addItem(int dayOffset, Cursor cursor) {
@@ -181,6 +215,9 @@ public class ScoresAppWidgetService extends RemoteViewsService {
         private int homeCrestImageId;
         private int awayCrestImageId;
 
+        private String headline;
+        private boolean isHeadline;
+
         public FixtureItem(int dayOffset, String homeName, String awayName, String date, String score, int homeCrestImageId, int awayCrestImageId) {
             this.dayOffset = dayOffset;
             this.homeName = homeName;
@@ -189,6 +226,14 @@ public class ScoresAppWidgetService extends RemoteViewsService {
             this.score = score;
             this.homeCrestImageId = homeCrestImageId;
             this.awayCrestImageId = awayCrestImageId;
+            this.headline = "";
+            this.isHeadline = false;
+        }
+
+        public FixtureItem(int dayOffset, String headline) {
+            this.dayOffset = dayOffset;
+            this.headline = headline;
+            this.isHeadline = true;
         }
 
         public int getDayOffset() {
@@ -217,6 +262,14 @@ public class ScoresAppWidgetService extends RemoteViewsService {
 
         public int getAwayCrestImageId() {
             return awayCrestImageId;
+        }
+
+        public boolean isHeadline() {
+            return isHeadline;
+        }
+
+        public String getHeadline() {
+            return headline;
         }
     }
 }
