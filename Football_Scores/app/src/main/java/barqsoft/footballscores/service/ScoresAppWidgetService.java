@@ -135,8 +135,8 @@ public class ScoresAppWidgetService extends RemoteViewsService {
             result.setTextColor(R.id.scores_list_item_home_name, Color.BLACK);
             result.setTextViewText(R.id.scores_list_item_away_name, item.getAwayName());
             result.setTextColor(R.id.scores_list_item_away_name, Color.BLACK);
-            result.setTextViewText(R.id.scores_list_item_data_textview, item.getDate());
-            result.setTextColor(R.id.scores_list_item_data_textview, Color.BLACK);
+            result.setTextViewText(R.id.scores_list_item_date_textview, item.getDate());
+            result.setTextColor(R.id.scores_list_item_date_textview, Color.BLACK);
             result.setTextViewText(R.id.scores_list_item_score_textview, item.getScore());
             result.setTextColor(R.id.scores_list_item_score_textview, Color.BLACK);
 

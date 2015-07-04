@@ -34,6 +34,7 @@
         android:textColor="#ffffff"
         android:textStyle="bold"
         android:text="@string/scores_app_widget_no_data_text"
+        android:contentDescription="@string/scores_app_widget_no_data_content_description"
         android:textSize="20sp"
         />
 

@@ -13,5 +13,6 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:layout_margin="3dp"
+        android:contentDescription="@string/scores_app_widget_headline_content_description"
         android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
 </LinearLayout>
