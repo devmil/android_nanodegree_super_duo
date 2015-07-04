@@ -8,12 +8,16 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
 
+import barqsoft.footballscores.service.FetchStatus;
+
 public class Settings {
 
     private static final String PREFERENCES_NAME = "settings";
 
     private static final String PREF_INITIAL_LOADING_DONE = "initialLoadingDone";
     private static final String PREF_LAST_UPDATE = "lastUpdate";
+
+    private static final String PREF_LAST_FETCH_STATUS = "lastFetchStatus";
 
     private WeakReference<Context> mContext;
 
@@ -53,6 +57,24 @@ public class Settings {
         if(p != null) {
             p.edit()
                     .putLong(PREF_LAST_UPDATE, date.getTime())
+                    .apply();
+        }
+    }
+
+    public @FetchStatus.Values int getLastFetchStatus() {
+        SharedPreferences p = getSharedPreferences();
+        if(p != null) {
+            //noinspection ResourceType
+            return p.getInt(PREF_LAST_FETCH_STATUS, FetchStatus.UNKNOWN);
+        }
+        return FetchStatus.UNKNOWN;
+    }
+
+    public void setLastFetchStatus(@FetchStatus.Values int fetchStatus) {
+        SharedPreferences p = getSharedPreferences();
+        if(p != null) {
+            p.edit()
+                    .putInt(PREF_LAST_FETCH_STATUS, fetchStatus)
                     .apply();
         }
     }

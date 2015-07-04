@@ -1,5 +1,7 @@
 package barqsoft.footballscores;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -11,9 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
+import barqsoft.footballscores.service.FetchStatus;
 import barqsoft.footballscores.service.MyFetchService;
+import barqsoft.footballscores.service.events.FetchStatusChangedEvent;
+import de.greenrobot.event.EventBus;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -25,6 +34,9 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
     private ScoresAdapter mAdapter;
     public static final int SCORES_LOADER = 0;
     private String[] fragmentDate = new String[1];
+    private Settings settings;
+    private LinearLayout llNoItems;
+    private TextView txtNoItems;
 
     public MainScreenFragment()
     {
@@ -62,7 +74,25 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
                 mAdapter.setDetailMatchId(selected.match_id);
             }
         });
+        llNoItems = (LinearLayout)rootView.findViewById(R.id.fragment_main_scores_no_items);
+        txtNoItems = (TextView)rootView.findViewById(R.id.fragment_main_scores_no_items_text);
+
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        settings = new Settings(activity);
+        EventBus.getDefault().register(this);
+        handleNoItemsVisibilityAndContent();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        settings = null;
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -89,6 +119,7 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
             cursor.moveToNext();
         }
         mAdapter.swapCursor(cursor);
+        handleNoItemsVisibilityAndContent();
     }
 
     @Override
@@ -97,5 +128,45 @@ public class MainScreenFragment extends Fragment implements LoaderManager.Loader
         mAdapter.swapCursor(null);
     }
 
+    public void onEventMainThread(FetchStatusChangedEvent e) {
+        handleNoItemsVisibilityAndContent();
+    }
 
+    private void handleNoItemsVisibilityAndContent() {
+        boolean hasData = mAdapter != null && mAdapter.getCount() > 0;
+        @FetchStatus.Values
+        int fetchStatus = FetchStatus.UNKNOWN;
+
+        Settings s = settings;
+        if(s != null) {
+            fetchStatus = settings.getLastFetchStatus();
+        }
+
+        if(llNoItems != null) {
+            llNoItems.setVisibility(hasData ? View.GONE :  View.VISIBLE);
+        }
+        if(txtNoItems != null) {
+            txtNoItems.setText(getStatusText(fetchStatus));
+        }
+    }
+
+    private CharSequence getStatusText(@FetchStatus.Values int fetchStatus) {
+        Context context =  getActivity();
+        if(context == null) {
+            return "";
+        }
+
+        switch(fetchStatus) {
+            case FetchStatus.UNKNOWN:
+                return context.getResources().getText(R.string.no_items_fetch_status_unknown);
+            case FetchStatus.OK:
+                return context.getResources().getText(R.string.no_items_fetch_status_ok);
+            case FetchStatus.NETWORK_ERROR:
+                return context.getResources().getText(R.string.no_items_fetch_status_network_error);
+            case FetchStatus.PROTOCOL_ERROR:
+                return context.getResources().getText(R.string.no_items_fetch_status_protocol_error);
+
+        }
+        return "";
+    }
 }

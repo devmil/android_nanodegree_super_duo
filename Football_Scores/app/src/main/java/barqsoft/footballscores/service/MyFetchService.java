@@ -6,6 +6,8 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -22,6 +24,8 @@ import barqsoft.footballscores.DatabaseContract;
 import barqsoft.footballscores.ScoresAppWidget;
 import barqsoft.footballscores.Settings;
 import barqsoft.footballscores.Utilities;
+import barqsoft.footballscores.service.events.FetchStatusChangedEvent;
+import de.greenrobot.event.EventBus;
 import retrofit.RestAdapter;
 
 public class MyFetchService extends IntentService
@@ -95,14 +99,32 @@ public class MyFetchService extends IntentService
 
     private void doLoadData() {
         Log.d(LOG_TAG, "Loading data");
+
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        if(nInfo == null
+                || !nInfo.isAvailable()
+                || !nInfo.isConnected()) {
+            onFetchStatusChanged(FetchStatus.NETWORK_ERROR);
+            return;
+        }
+
         boolean allDone;
         allDone = getData(new FootballDataOrgService.TimeFrame(true, 2));
         allDone = getData(new FootballDataOrgService.TimeFrame(false, 2)) && allDone;
         if(allDone) {
             mSettings.notifyLastUpdateNow();
             ScoresAppWidget.notifyDataChanged(this);
+            onFetchStatusChanged(FetchStatus.OK);
+        } else {
+            onFetchStatusChanged(FetchStatus.PROTOCOL_ERROR);
         }
         scheduleNextUpdate();
+    }
+
+    private void onFetchStatusChanged(@FetchStatus.Values int newStatus) {
+        mSettings.setLastFetchStatus(newStatus);
+        EventBus.getDefault().post(new FetchStatusChangedEvent(newStatus));
     }
 
     private boolean getData (FootballDataOrgService.TimeFrame timeFrame)
