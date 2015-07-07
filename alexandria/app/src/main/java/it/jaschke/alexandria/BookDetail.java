@@ -1,5 +1,6 @@
 package it.jaschke.alexandria;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -85,6 +86,11 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
         MenuItem menuItem = menu.findItem(R.id.action_share);
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+bookTitle);
+        shareActionProvider.setShareIntent(shareIntent);
     }
 
     @Override
@@ -108,11 +114,10 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
         bookTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.TITLE));
         txtFullBookTitle.setText(bookTitle);
 
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_text)+bookTitle);
-        shareActionProvider.setShareIntent(shareIntent);
+        Activity activity = getActivity();
+        if(activity != null) {
+            activity.invalidateOptionsMenu();
+        }
 
         String bookSubTitle = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.SUBTITLE));
         txtFullBookSubTitle.setText(bookSubTitle);
