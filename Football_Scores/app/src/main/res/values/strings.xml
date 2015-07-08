@@ -56,4 +56,16 @@
     <string name="scores_list_item_date_content_description">Date</string>
     <string name="scores_list_item_away_crest_content_description">Away Crest</string>
     <string name="scores_list_item_away_name_content_description">Away name</string>
+    <string name="league_serie_a">Seria A</string>
+    <string name="league_premier_league">Premier League</string>
+    <string name="league_uefa">UEFA Champions League</string>
+    <string name="league_primera_division">Primera Division</string>
+    <string name="league_Bundesliga">Bundesliga</string>
+    <string name="league_unknown">Not known League Please report</string>
+    <string name="matchday_staging">Group Stages, Matchday : 6</string>
+    <string name="matchday_knockout">First Knockout round</string>
+    <string name="matchday_quaterfinal">QuarterFinal</string>
+    <string name="matchday_semifinal">SemiFinal</string>
+    <string name="matchday_final">Final</string>
+    <string name="matchday_matchday">Matchday</string>
 </resources>
